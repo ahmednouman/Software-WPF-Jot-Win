@@ -1,0 +1,345 @@
+﻿<Window x:Class="JotWin.View.LicenseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JotWin.View"
+        mc:Ignorable="d"
+        Width="1308" Height="846"
+        ResizeMode="NoResize"
+        Icon="..\Resources\Assets\JotLogo.png"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="primary30" Color="#DBD4FC" />
+        <SolidColorBrush x:Key="primary40" Color="#8F73F7" />
+        <SolidColorBrush x:Key="primary50" Color="#61269E" />
+
+        <SolidColorBrush x:Key="primary40_40" Color="#668F73F7" />
+
+        <SolidColorBrush x:Key="neutral40" Color="#333345" />
+        <SolidColorBrush x:Key="neutral50" Color="#6B6B6B" />
+    </Window.Resources>
+
+    <Grid>
+
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                <LinearGradientBrush.GradientStops>
+                    <GradientStop Offset="0" Color="#171717" />
+                    <GradientStop Offset="0.5" Color="#1A1A1A" />
+                    <GradientStop Offset="1" Color="#2B2B2B" />
+                </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Image Source="../Resources/Assets/trial_background.png"
+                   Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+
+        <Grid x:Name="StartTrialView">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="64" />
+                <RowDefinition Height="32" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Turn your entire screen space into an intuitive smart canvas"
+                   Foreground="White"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   FontFamily="Helvetica"
+                   FontSize="50"
+                   FontWeight="Bold"
+                   Grid.Column="1"
+                   Grid.ColumnSpan="4"
+                   Grid.Row="1" />
+
+            <TextBlock Text="To start using Jot, select one of the options below."
+                   Foreground="White" 
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   FontFamily="Helvetica"
+                   FontSize="28"
+                   Grid.Column="1"
+                   Grid.ColumnSpan="4"
+                   Grid.Row="2" />
+
+            <Button x:Name="LearnMoreButton"
+                    Grid.Column="2"
+                    Grid.Row="3"
+                    Margin="4"
+                    Click="LearnMore_Click"
+                    Cursor="Hand">
+
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+
+                        <Border x:Name="LearnMoreBorder"
+                                Background="Transparent"
+                                BorderBrush="{StaticResource primary50}"
+                                BorderThickness="2"
+                                CornerRadius="18"
+                                IsHitTestVisible="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+
+                                <Setter TargetName="LearnMoreBorder"
+                                        Property="Background"
+                                        Value="{StaticResource primary40_40}" />
+
+                                <Setter TargetName="LearnMoreBorder"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource primary40}" />
+
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+
+                <TextBlock Text="Learn more" 
+                           Foreground="White"
+                           FontFamily="Helvetica" />
+
+            </Button>
+
+            <Button Grid.Column="3"
+                    Grid.Row="3"
+                    Margin="4"
+                    Click="StartTrial_Click"
+                    Cursor="Hand">
+
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+
+                        <Border x:Name="StartTrialButton"
+                                Background="{StaticResource primary50}"
+                                CornerRadius="18"
+                                IsHitTestVisible="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="StartTrialButton"
+                                        Property="Background"
+                                        Value="{StaticResource primary40}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+
+                <TextBlock x:Name="StartTrial_Text"
+                           Text="Start my 14 day free trial" 
+                           Foreground="White"
+                           FontFamily="Helvetica"
+                           FontWeight="Medium"/>
+
+            </Button>
+
+            <TextBlock Text="No credit card required"
+                       Grid.Column="3"
+                       Grid.Row="4"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       FontFamily="Helvetica"
+                       FontSize="12"/>
+
+        </Grid>
+
+
+        <Grid x:Name="EndTrialView"
+              Visibility="Collapsed">
+
+            <StackPanel VerticalAlignment="Center">
+
+                <TextBlock Text="Keep moving with Jot by selecting an option below"
+                           Width="1000"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           FontFamily="Helvetica"
+                           FontSize="50"
+                           FontWeight="Bold" />
+
+                <TextBlock Text="We're with you on this one."
+                           Foreground="White" 
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           FontFamily="Helvetica"
+                           FontSize="28"
+                           Margin="0 20 0 50"/>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center" >
+
+                    <Button Width="300"
+                            Height="350"
+                            Cursor="Hand"
+                            Click="Support_Click"
+                            Margin="0 0 50 0">
+
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+
+                                <Border x:Name="SupportButton"
+                                        Background="{StaticResource neutral40}"
+                                        BorderBrush="{StaticResource neutral50}"
+                                        BorderThickness="8"
+                                        CornerRadius="18"
+                                        IsHitTestVisible="True">
+                                    <ContentPresenter HorizontalAlignment="Stretch"
+                                                      VerticalAlignment="Stretch" />
+                                </Border>
+
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="SupportButton"
+                                                Property="BorderBrush"
+                                                Value="{StaticResource primary50}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+
+                            </ControlTemplate>
+                        </Button.Template>
+
+                        <Grid>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="2*"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid.Style>
+                                <Style>
+                                    <Style.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="White" />
+                                            <Setter Property="FontFamily" Value="Helvetica" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                            <Setter Property="FontSize" Value="14" />
+                                            <Setter Property="TextWrapping" Value="Wrap" />
+                                            <Setter Property="TextAlignment" Value="Center" />
+                                            <Setter Property="Margin" Value="20 0" />
+                                        </Style>
+                                    </Style.Resources>
+                                </Style>
+                            </Grid.Style>
+
+                            <Image Source="../Resources/Assets/support.png"
+                                   Grid.Row="1"/>
+
+                            <TextBlock Text="Already have an espresso Display and Pen?
+                                       Contact our team to get your account set up." 
+                                       Grid.Row="3"/>
+
+                        </Grid>
+                    </Button>
+
+                    <Button Width="300"
+                            Height="350"
+                            Cursor="Hand"
+                            Click="Purchase_Click">
+
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+
+                                <Border x:Name="PurchaseButton"
+                                        Background="{StaticResource neutral40}"
+                                        BorderBrush="{StaticResource neutral50}"
+                                        BorderThickness="8"
+                                        CornerRadius="18"
+                                        IsHitTestVisible="True">
+                                    <ContentPresenter HorizontalAlignment="Stretch"
+                                                      VerticalAlignment="Stretch" />
+                                </Border>
+
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="PurchaseButton"
+                                                Property="BorderBrush"
+                                                Value="{StaticResource primary50}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+
+                            </ControlTemplate>
+                        </Button.Template>
+
+                        <Grid Height="auto"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" >
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="2*"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid.Style>
+                                <Style>
+                                    <Style.Resources>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Foreground" Value="White" />
+                                            <Setter Property="FontFamily" Value="Helvetica" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                            <Setter Property="FontSize" Value="14" />
+                                            <Setter Property="TextWrapping" Value="Wrap" />
+                                            <Setter Property="TextAlignment" Value="Center" />
+                                            <Setter Property="Margin" Value="20 0" />
+                                        </Style>
+                                    </Style.Resources>
+                                </Style>
+                            </Grid.Style>
+
+                            <Image Source="../Resources/Assets/jotLogo.png"
+                                   Grid.Row="1"/>
+
+
+                            <TextBlock Text="Purchase Jot"
+                                       Grid.Row="3"/>
+
+                        </Grid>
+                    </Button>
+
+                </StackPanel>
+
+            </StackPanel>
+
+        </Grid>
+
+    </Grid>
+</Window>

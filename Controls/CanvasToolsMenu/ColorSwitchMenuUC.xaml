@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="JotWin.Controls.CanvasToolsMenu.ColorSwitchMenuUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JotWin.Controls.CanvasToolsMenu"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="208">
+
+    <Grid>
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Rectangle Width="208" Height="200" Fill="#F9F9F9" RadiusX="18" RadiusY="18" Stroke="#E6E6E6"/>
+
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="45"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="45"/>
+                        <RowDefinition Height="45"/>
+                        <RowDefinition Height="45"/>
+                        <RowDefinition Height="45"/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle Grid.Column="0" Grid.Row="0" Width="25" Height="25" Fill="Black" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1"  MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="1" Grid.Row="0" Width="25" Height="25" Fill="Green" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="2" Grid.Row="0" Width="25" Height="25" Fill="Blue" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="3" Grid.Row="0" Width="25" Height="25" Fill="Yellow" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+
+                    <Rectangle Grid.Column="0" Grid.Row="1" Width="25" Height="25" Fill="Orange" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="1" Grid.Row="1" Width="25" Height="25" Fill="Purple" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="2" Grid.Row="1" Width="25" Height="25" Fill="Pink" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="3" Grid.Row="1" Width="25" Height="25" Fill="Brown" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+
+                    <Rectangle Grid.Column="0" Grid.Row="2" Width="25" Height="25" Fill="Gray" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="1" Grid.Row="2" Width="25" Height="25" Fill="Cyan" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="2" Grid.Row="2" Width="25" Height="25" Fill="Magenta" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="3" Grid.Row="2" Width="25" Height="25" Fill="Lime" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+
+                    <Rectangle Grid.Column="0" Grid.Row="3" Width="25" Height="25" Fill="White" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="1" Grid.Row="3" Width="25" Height="25" Fill="Red" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="2" Grid.Row="3" Width="25" Height="25" Fill="DarkMagenta" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+                    <Rectangle Grid.Column="3" Grid.Row="3" Width="25" Height="25" Fill="LightPink" RadiusX="2" RadiusY="2" Stroke="#343245" StrokeThickness="1" MouseLeftButtonDown="colorSelect_Click"/>
+
+
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

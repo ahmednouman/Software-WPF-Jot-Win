@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JotWin", "JotWin.csproj", "{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{19D5561D-46FD-442B-A9D8-4BCF478C2DAD}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|x64.Build.0 = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Debug|x86.Build.0 = Debug|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|x64.ActiveCfg = Release|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|x64.Build.0 = Release|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|x86.ActiveCfg = Release|Any CPU
+		{7FEF0E91-B2EE-4CA8-963C-29CD0A92C86C}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {11933484-F7AA-4733-BAC1-3C7664924DAB}
+	EndGlobalSection
+EndGlobal
