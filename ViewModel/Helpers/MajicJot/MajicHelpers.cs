@@ -7,6 +7,9 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using JotWin.View;
 using System.Threading;
+using System.Threading.Tasks;
+using WindowsInput;
+using WindowsInput.Native;
 
 namespace JotWin.ViewModel.Helpers.MajicJot
 {
@@ -23,6 +26,8 @@ namespace JotWin.ViewModel.Helpers.MajicJot
 
         public static string? foregroundProccessName;
         public static string? clickedMonitor;
+
+        public static Screen targetScreen;
 #pragma warning restore CA2211
 
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
@@ -83,7 +88,7 @@ namespace JotWin.ViewModel.Helpers.MajicJot
             return process.ProcessName;
         }
 
-        private static void MoveWindowToMonitor(Window window)
+        private static void MoveWindowToMonitor(Window window, Screen tagetMonitor = null)
         {
             if (clickedMonitor == null)
             {
@@ -93,8 +98,16 @@ namespace JotWin.ViewModel.Helpers.MajicJot
 
             try
             {
-                Screen targetScreen = Screen.AllScreens.FirstOrDefault(screen => screen.DeviceName.Contains(clickedMonitor, StringComparison.OrdinalIgnoreCase))
-                                      ?? throw new Exception("MoveWindowToMonitor null screen");
+                if(tagetMonitor == null)
+                {
+                    targetScreen = Screen.AllScreens.FirstOrDefault(screen => screen.DeviceName.Contains(clickedMonitor, StringComparison.OrdinalIgnoreCase))
+                      ?? throw new Exception("MoveWindowToMonitor null screen");
+                }
+                else
+                {
+                    targetScreen = tagetMonitor;
+                }
+
 
                 var hwnd = new WindowInteropHelper(window).Handle;
 
@@ -126,7 +139,9 @@ namespace JotWin.ViewModel.Helpers.MajicJot
 
             if (mainWindow.WindowState == WindowState.Minimized)
             {
+                mainWindow.Topmost = true;
                 mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Topmost = false;
             }
             else
             {
@@ -134,6 +149,7 @@ namespace JotWin.ViewModel.Helpers.MajicJot
                 mainWindow.Topmost = false;
             }
         }
+
 
         private static int GetScreenIndex()
         {
@@ -228,6 +244,7 @@ namespace JotWin.ViewModel.Helpers.MajicJot
             mainWindow.canvasTemplate = CanvasTemplate.Tracing;
             mainWindow.tabDataList[mainWindow.mainTabsVM.SelectedTab].canvasBackground = CanvasTemplate.Tracing;
             mainWindow.tabDataList[mainWindow.mainTabsVM.SelectedTab].isForMajicJot = true;
+            mainWindow.doneCopyBtnControl("done");
         }
 
         public static void finishMajicJot()
@@ -241,11 +258,35 @@ namespace JotWin.ViewModel.Helpers.MajicJot
             SystemFileControl.CopyCanvasToClipboard(mainWindow.DrawingCanvas);
             mainWindow.WindowState = WindowState.Minimized;
 
+            mainWindow.dropJot_win.Show();
+            mainWindow.dropJot_win.pasteTriggered = false;
+            MoveWindowToMonitor(mainWindow.dropJot_win, targetScreen);
+            ExtenalMonitorInfo.resizeAppWindow(mainWindow.dropJot_win);
+
+        }
+
+        public static async void pasteAndRemove()
+        {
             updateMajicCoordinates();
 
-            moveAndTriggerCursor();
+            mainWindow.dropJot_win.Hide();
+            mainWindow.dropJot_win.cursorTriggered = false;
+            mainWindow.dropJot_win.pasteTriggered = true;
 
-            SendKeys.SendWait("^(v)");
+            await Task.Delay(200);
+
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            Thread.Sleep(50);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
+            
+
+            //moveAndTriggerCursor();
+
+            var simulator = new InputSimulator();
+
+
+            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
         }
 
         [DllImport("user32.dll")]

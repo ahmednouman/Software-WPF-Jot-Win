@@ -1,36 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Ink;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
 
 namespace JotWin.ViewModel.Helpers.UndoManager
 {
     [Serializable]
-    public class canvasState
+    public class CanvasState
     {
         //public StrokeCollection _strokeList = new StrokeCollection();
-        [XmlIgnore]
-        public ExtendedStroke _extendedStroke = new ExtendedStroke();
+        //[XmlIgnore]
+        //public ExtendedStroke _extendedStroke = new();
 
-        public List<ExtendedShape> _shapeList = new List<ExtendedShape>();
-        public List<ExtendedTextBox> _textList = new List<ExtendedTextBox>();
-        public List<ExtendedImage> _imageList = new List<ExtendedImage>(); 
-        public canvasState() { }
+        public List<ExtendedShape> _shapeList = new();
+        public List<ExtendedTextBox> _textList = new();
+        public List<ExtendedImage> _imageList = new(); 
+        public List<ExtendedUIStroke> _strokeList = new();
 
-        public canvasState(canvasState original)
+        public CanvasState() { }
+
+        public CanvasState(CanvasState original)
         {
             //_strokeList = new StrokeCollection(original._strokeList);
-            _extendedStroke = new ExtendedStroke(original._extendedStroke.Strokes);
+            //_extendedStroke = new ExtendedStroke(original._extendedStroke.Strokes);
             _shapeList = new List<ExtendedShape>(original._shapeList);
             _textList = new List<ExtendedTextBox>(original._textList);  
             _imageList = new List<ExtendedImage>(original._imageList);
+            _strokeList = new List<ExtendedUIStroke>(original._strokeList);
         }
     }
 
@@ -42,16 +39,10 @@ namespace JotWin.ViewModel.Helpers.UndoManager
         public byte B { get; set; }
     }
 
-
     public static class BrushSerializationHelper
     {
-        public static SerializableColor? BrushToSerializableColor(Brush brush)
+        public static SerializableColor? BrushToSerializableColor(Brush? brush)
         {
-            if (brush == null)
-            {
-                return null;
-            }
-
             if (brush is SolidColorBrush solidColorBrush)
             {
                 return new SerializableColor
@@ -66,7 +57,7 @@ namespace JotWin.ViewModel.Helpers.UndoManager
             return null;
         }
 
-        public static Brush? SerializableColorToBrush(SerializableColor color)
+        public static Brush? SerializableColorToBrush(SerializableColor? color)
         {
             if (color == null)
             {
@@ -78,20 +69,20 @@ namespace JotWin.ViewModel.Helpers.UndoManager
     }
 
 
-    public class ExtendedStroke
-    {
-        public StrokeCollection Strokes { get; }
+    //public class ExtendedStroke
+    //{
+    //    public StrokeCollection Strokes { get; }
 
-        public ExtendedStroke()
-        {
-            Strokes = new StrokeCollection();
-        }
+    //    public ExtendedStroke()
+    //    {
+    //        Strokes = new StrokeCollection();
+    //    }
 
-        public ExtendedStroke(StrokeCollection strokes)
-        {
-            Strokes = new StrokeCollection(strokes.Select(s => new Stroke(s.StylusPoints.Clone(), s.DrawingAttributes.Clone())));
-        }
-    }
+    //    public ExtendedStroke(StrokeCollection strokes)
+    //    {
+    //        Strokes = new StrokeCollection(strokes.Select(s => new Stroke(s.StylusPoints.Clone(), s.DrawingAttributes.Clone())));
+    //    }
+    //}
 
     public class ExtendedRectangle
     {

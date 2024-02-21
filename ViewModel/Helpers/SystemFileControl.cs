@@ -1,6 +1,7 @@
 ﻿using JotWin.View;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -71,31 +72,34 @@ namespace JotWin.ViewModel.Helpers
         {
             Rect bounds = VisualTreeHelper.GetDescendantBounds(inkCanvas);
 
-            if (bounds.Width > 0 && bounds.Height > 0)
+            if (bounds.Width <= 0 || bounds.Height <= 0)
             {
-                RenderTargetBitmap renderBitmap = new ((int)inkCanvas.ActualWidth,
-                                                       (int)inkCanvas.ActualHeight,
-                                                       96d,
-                                                       96d,
-                                                       PixelFormats.Default);
-
-                renderBitmap.Render(inkCanvas);
-
-                Rect boundingBox = getInkBoundingBox(inkCanvas);
-
-                boundingBox.X = Math.Max(0, Math.Min(boundingBox.X, inkCanvas.ActualWidth));
-                boundingBox.Y = Math.Max(0, Math.Min(boundingBox.Y, inkCanvas.ActualHeight));
-                boundingBox.Width = Math.Min(inkCanvas.ActualWidth - boundingBox.X, boundingBox.Width);
-                boundingBox.Height = Math.Min(inkCanvas.ActualHeight - boundingBox.Y, boundingBox.Height);
-
-                CroppedBitmap croppedBitmap = new(renderBitmap, new Int32Rect((int)boundingBox.X,
-                                                                              (int)boundingBox.Top,
-                                                                              (int)boundingBox.Width,
-                                                                              (int)boundingBox.Height));
-
-                SaveCanvasAsPng(croppedBitmap, "CroppedCanvas.png");
-                CopyImageToClipboard("CroppedCanvas.png");
+                Debug.WriteLine($"CopyCanvasToClipboard invalid bounds. w: {bounds.Width}, h: {bounds.Height}");
+                return;
             }
+
+            RenderTargetBitmap renderBitmap = new((int)inkCanvas.ActualWidth,
+                                                  (int)inkCanvas.ActualHeight,
+                                                  96d,
+                                                  96d,
+                                                  PixelFormats.Default);
+
+            renderBitmap.Render(inkCanvas);
+
+            Rect boundingBox = getInkBoundingBox(inkCanvas);
+
+            boundingBox.X = Math.Max(0, Math.Min(boundingBox.X, inkCanvas.ActualWidth));
+            boundingBox.Y = Math.Max(0, Math.Min(boundingBox.Y, inkCanvas.ActualHeight));
+            boundingBox.Width = Math.Min(inkCanvas.ActualWidth - boundingBox.X, boundingBox.Width);
+            boundingBox.Height = Math.Min(inkCanvas.ActualHeight - boundingBox.Y, boundingBox.Height);
+
+            CroppedBitmap croppedBitmap = new(renderBitmap, new Int32Rect((int)boundingBox.X,
+                                                                          (int)boundingBox.Top,
+                                                                          (int)boundingBox.Width,
+                                                                          (int)boundingBox.Height));
+
+            SaveCanvasAsPng(croppedBitmap, "CroppedCanvas.png");
+            CopyImageToClipboard("CroppedCanvas.png");
         }
 
 
@@ -103,58 +107,28 @@ namespace JotWin.ViewModel.Helpers
         {
             Rect boundingBox = Rect.Empty;
 
-            double minLeft = 0;
-            double minTop = 0;
-            double maxBottom = 0;
-            double maxRight = 0;
-
-            int count = 0;
-
-            foreach (var stroke in inkCanvas.Strokes)
+            foreach (FrameworkElement element in inkCanvas.Children)
             {
-                Rect strokeBounds = stroke.GetBounds();
-                boundingBox = Rect.Union(boundingBox, strokeBounds);
+                double left = InkCanvas.GetLeft(element);
+                double top = InkCanvas.GetTop(element);
 
-                if(count == 0)
+                if (double.IsNaN(left)
+                    || double.IsNaN(top)
+                    || double.IsNaN(element.Width)
+                    || double.IsNaN(element.Height))
                 {
-                    minLeft = strokeBounds.X;
-                    minTop = strokeBounds.Y;
-                    maxRight = strokeBounds.Right;
-                    maxBottom = strokeBounds.Bottom;
+                    continue;
                 }
-                else
-                {
-                    if (strokeBounds.X < minLeft)
-                    {
-                        minLeft = strokeBounds.X;
-                    }
-                    if (strokeBounds.Y < minTop)
-                    {
-                        minTop = strokeBounds.Y;
-                    }
-                    if(strokeBounds.Bottom > maxBottom)
-                    {
-                        maxBottom = strokeBounds.Bottom;
-                    }
-                    if(strokeBounds.Right > maxRight)
-                    {
-                        maxRight = strokeBounds.Right;
-                    }
-                }
-                count++;
+
+                Rect elementBounds = new(left, top, element.Width, element.Height);
+
+                boundingBox = Rect.Union(boundingBox, elementBounds);
             }
 
-            foreach (var visual in inkCanvas.Children)
-            {
-                if (visual is UIElement element)
-                {
-                    Rect elementBounds = VisualTreeHelper.GetDescendantBounds(element);
-                    boundingBox = Rect.Union(boundingBox, elementBounds);
-                }
-                count++;
-            }
-
-            Rect boundingRect = new Rect(minLeft - 2, minTop, maxRight - minLeft + 5, maxBottom - minTop + 5);
+            Rect boundingRect = new(boundingBox.Left - 2,
+                                    boundingBox.Top,
+                                    boundingBox.Width + 5,
+                                    boundingBox.Height + 5);
 
             return boundingRect;
         }
@@ -174,14 +148,16 @@ namespace JotWin.ViewModel.Helpers
             bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
             memory.Position = 0;
 
-            BitmapImage bitmapImage = new BitmapImage();
+            BitmapImage bitmapImage = new();
             bitmapImage.BeginInit();
             bitmapImage.StreamSource = memory;
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
             bitmapImage.EndInit();
 
-            Image image = new Image();
-            image.Source = bitmapImage;
+            Image image = new()
+            {
+                Source = bitmapImage
+            };
 
             double canvasWidth = main_window.DrawingCanvas.ActualWidth;
             double canvasHeight = main_window.DrawingCanvas.ActualHeight;
@@ -218,21 +194,30 @@ namespace JotWin.ViewModel.Helpers
             {
                 System.Windows.Forms.Screen[] allScreens = System.Windows.Forms.Screen.AllScreens;
 
+                ExtenalMonitorInfo.LoadData();
+
                 foreach (System.Windows.Forms.Screen screen in allScreens)
                 {
-                    System.Drawing.Bitmap screenshot = new(screen.Bounds.Width, screen.Bounds.Height);
 
-                    using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(screenshot))
+                    for(int i = 0; i < ExtenalMonitorInfo.monitorInfo.DisplayCount; i++)
                     {
-                        graphics.CopyFromScreen(screen.Bounds.X,
-                                                screen.Bounds.Y,
-                                                0, 0,
-                                                screen.Bounds.Size,
-                                                System.Drawing.CopyPixelOperation.SourceCopy
-                                                );
-                    }
+                        if(ExtenalMonitorInfo.monitorInfo.Displays[i].DeviceName == screen.DeviceName)
+                        {
+                            System.Drawing.Bitmap screenshot = new(ExtenalMonitorInfo.monitorInfo.Displays[i].PhysicalResolution.Width, ExtenalMonitorInfo.monitorInfo.Displays[i].PhysicalResolution.Height);
 
-                    capturedScreens.Screenshots.Add(screenshot);
+                            using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(screenshot))
+                            {
+                                graphics.CopyFromScreen(ExtenalMonitorInfo.monitorInfo.Displays[i].Resolution.X,
+                                                        ExtenalMonitorInfo.monitorInfo.Displays[i].Resolution.Y,
+                                                        0, 0,
+                                                        screen.Bounds.Size,
+                                                        System.Drawing.CopyPixelOperation.SourceCopy);
+                            }
+
+                            capturedScreens.Screenshots.Add(screenshot);
+                        }
+                    }
+                    
                 }
 
                 capturedScreens.StartIndex += allScreens.Length;

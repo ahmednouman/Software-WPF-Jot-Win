@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using JotWin.View;
 using Newtonsoft.Json;
 
@@ -11,6 +12,8 @@ namespace JotWin.ViewModel.Helpers
     {
         private static readonly string ExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "thirdParty", "displayToJSON.exe");
         private static readonly string OutputFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,  "monitor_info.json");
+
+        public static MainAppWindow main_win;
 
         public static MonitorInfo monitorInfo; 
 
@@ -31,21 +34,51 @@ namespace JotWin.ViewModel.Helpers
             ReadJSONFile();
         }
 
-        public static void resizeAppWindow(MainAppWindow mainWindow)
+        public static void resizeAppWindow(Window mainWindow)
         {
             LoadData();
 
-            System.Windows.Forms.Screen currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle);
+            System.Windows.Forms.Screen currentScreen = null;
 
-            DisplayInfo displayInfo = DisplayInfos.FirstOrDefault(
-                                    info => info.DeviceName.Contains(currentScreen.DeviceName, StringComparison.OrdinalIgnoreCase));
+            if (mainWindow is MainAppWindow mainAppWindow && main_win == null)
+            {
+                main_win = mainAppWindow;
+            }
 
-            mainWindow.Left = displayInfo.WorkingArea.X;
-            mainWindow.Top = displayInfo.WorkingArea.Y;
+            if(mainWindow == null)
+            {
+                currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(main_win).Handle);
 
-            mainWindow.Width = displayInfo.WorkingArea.Width;
-            mainWindow.Height = displayInfo.WorkingArea.Height;
+                DisplayInfo displayInfo = DisplayInfos.FirstOrDefault(
+                        info => info.DeviceName.Contains(currentScreen.DeviceName, StringComparison.OrdinalIgnoreCase));
 
+                main_win.Left = displayInfo.WorkingArea.X;
+                main_win.Top = displayInfo.WorkingArea.Y;
+
+                main_win.Width = displayInfo.WorkingArea.Width;
+                main_win.Height = displayInfo.WorkingArea.Height;
+
+            }
+            else
+            {
+                currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle);
+
+                DisplayInfo displayInfo = DisplayInfos.FirstOrDefault(
+                        info => info.DeviceName.Contains(currentScreen.DeviceName, StringComparison.OrdinalIgnoreCase));
+
+                mainWindow.Left = displayInfo.WorkingArea.X;
+                mainWindow.Top = displayInfo.WorkingArea.Y;
+
+                mainWindow.Width = displayInfo.WorkingArea.Width;
+                mainWindow.Height = displayInfo.WorkingArea.Height;
+
+            }
+
+        }
+
+        public  static MainAppWindow GetMainWindowInstance()
+        {
+            return main_win;
         }
 
         private static void ExecuteDisplayToJSON()
@@ -118,6 +151,9 @@ namespace JotWin.ViewModel.Helpers
     {
         [JsonProperty("Device Name")]
         public string DeviceName { get; set; }
+
+        [JsonProperty("PhysicalResolution")]
+        public Resolution PhysicalResolution { get; set; }
 
         [JsonProperty("Resolution")]
         public Resolution Resolution { get; set; }

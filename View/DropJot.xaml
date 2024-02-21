@@ -1,0 +1,29 @@
+﻿<Window x:Class="JotWin.View.DropJot"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JotWin.View"
+        mc:Ignorable="d"
+        ShowInTaskbar="False"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Background="#01ffffff"
+        Icon="..\Resources\Assets\JotLogo.png"
+        Title="DropJot" Height="1080" Width="1920">
+
+    <Grid VerticalAlignment="Stretch" Background="#01ffffff"
+          HorizontalAlignment="Stretch" 
+          PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown" 
+          PreviewStylusButtonDown="Grid_PreviewStylusButtonDown" 
+          PreviewTouchDown="Grid_PreviewTouchDown" 
+          PreviewMouseMove="Grid_PreviewMouseMove" 
+          PreviewStylusInAirMove="Grid_PreviewStylusInAirMove">
+
+
+        <Grid x:Name="dropJotText" Width="200" Height="35" Margin="0 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Rectangle Fill="#8E74F7" Opacity=".5" RadiusX="15" RadiusY="15"/>
+            <TextBlock Text="Tap anywhere to paste your Jot." FontSize="13" FontFamily="Massilia" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

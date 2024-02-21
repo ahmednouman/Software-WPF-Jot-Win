@@ -52,7 +52,7 @@ namespace JotWin.View
         {
             InitializeComponent();
             mainWin = main_win;
-            this.Owner = main_win;
+            Owner = main_win;
             DataContext = this;
 
             saveBtn.IsEnabled = false;
@@ -61,7 +61,7 @@ namespace JotWin.View
 
         private void cancelBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void saveBtn_Click(object sender, RoutedEventArgs e)
@@ -69,7 +69,7 @@ namespace JotWin.View
             mainWin.selectedTab.TabName = tabTitle;
             SaveLoad.saveCanvasToFile(mainWin);
 
-            this.Close();
+            Close();
         }
 
         private void txtSaveInput_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -79,7 +79,7 @@ namespace JotWin.View
                 mainWin.selectedTab.TabName = tabTitle;
                 SaveLoad.saveCanvasToFile(mainWin);
 
-                this.Close();
+                Close();
             }
         }
 

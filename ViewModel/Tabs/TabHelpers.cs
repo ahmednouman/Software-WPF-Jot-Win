@@ -18,41 +18,39 @@ namespace JotWin.ViewModel.Tabs
             mainWindow.DrawingCanvas.Strokes.Clear();
             mainWindow.DrawingCanvas.Children.Clear();
 
+            if (selectedTab.canvasData.isForMajicJot)
+            {
+                mainWindow.doneCopyBtnControl("done");
+            }
+            else
+            {
+                mainWindow.doneCopyBtnControl("copy");
+            }
+
             if (selectedTab.canvasData.hasSketch && selectedTab.canvasData.tabUndoManager != null)
             {
                 mainWindow.logo_1.Visibility = Visibility.Collapsed;
+
+
+                mainWindow.canvasCopy.IsEnabled = true;
                 //mainWindow.canvasLogoAction(false);
 
-                canvasState? currentCanvas = selectedTab.canvasData.tabUndoManager.getCurrentState();
+                CanvasState? currentCanvas = selectedTab.canvasData.tabUndoManager.getCurrentState();
                 
                 if (currentCanvas != null)
                 {
                     CanvasAnalyzer.reconstructCanvas(mainWindow.DrawingCanvas, currentCanvas);
                 }
 
-                if (selectedTab.canvasData.tabUndoManager.CanUndo)
-                {
-                    UndoAPI.SetUndoBtn(mainWindow, "active");
-                }
-                else
-                {
-                    UndoAPI.SetUndoBtn(mainWindow, "inactive");
-                }
-
-                if (selectedTab.canvasData.tabUndoManager.CanRedo)
-                {
-                    UndoAPI.SetRedoBtn(mainWindow, "active");
-                }
-                else
-                {
-                    UndoAPI.SetRedoBtn(mainWindow, "inactive");
-                }
+                UndoAPI.SetUndoButtonActive(mainWindow, selectedTab.canvasData.tabUndoManager.CanUndo);
+                UndoAPI.SetRedoButtonActive(mainWindow, selectedTab.canvasData.tabUndoManager.CanRedo);
             }
             else
             {
                 mainWindow.canvasLogoAction(true);
-                UndoAPI.SetUndoBtn(mainWindow, "inactive");
-                UndoAPI.SetRedoBtn(mainWindow, "inactive");
+                mainWindow.canvasCopy.IsEnabled = false;
+                UndoAPI.SetUndoButtonActive(mainWindow, false);
+                UndoAPI.SetRedoButtonActive(mainWindow, false);
             }
 
             mainWindow.canvasTemplate = selectedTab.canvasData.canvasBackground;

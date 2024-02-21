@@ -174,6 +174,8 @@
             <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="#F2F2F2" />
             <Rectangle Grid.Row="2" Grid.ColumnSpan="1" Fill="#F9F9F9" />
             <Rectangle Grid.Row="3" Grid.ColumnSpan="1" Fill="#F9F9F9" />
+            
+
 
             <StackPanel Grid.Row="0" Grid.Column="1"
                         Grid.ColumnSpan="2"
@@ -496,8 +498,7 @@
                                 Margin="0 0 20 0"
                                 Width="100" Height="32"
                                 Click="canvasCopy_Click"
-                                MouseEnter="copyCanvas_MouseEnter"
-                                MouseLeave="copyCanvas_MouseLeave">
+                                IsEnabled="False">
                             
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -516,6 +517,12 @@
                                                     Property="Background"
                                                     Value="#7D31CE" />
                                         </Trigger>
+
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="copyBtnBorder"
+                                                    Property="Background"
+                                                    Value="#7760269E" />
+                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                     
                                 </ControlTemplate>
@@ -530,6 +537,49 @@
                             
                         </Button>
 
+                        <Button x:Name="canvasDone"
+                                Margin="0 0 20 0"
+                                Width="100" Height="32"
+                                Click="canvasDone_Click"
+                                Visibility="Collapsed"
+                                IsEnabled="True">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+
+                                    <Border x:Name="doneBtnBorder"
+                                            Background="#60269E"
+                                            CornerRadius="8"
+                                            IsHitTestVisible="True">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="doneBtnBorder"
+                                                    Property="Background"
+                                                    Value="#7D31CE" />
+                                        </Trigger>
+
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="doneBtnBorder"
+                                                    Property="Background"
+                                                    Value="#7760269E" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </Button.Template>
+
+                            <TextBlock x:Name="doneText"
+                                       Text="Done"
+                                       Foreground="White"
+                                       FontWeight="Medium"
+                                       FontFamily="SF Pro"
+                                       FontSize="14" />
+
+                        </Button>
 
                     </Grid>
 
@@ -690,21 +740,24 @@
                                    MouseLeave="toolBtn_MouseLeave"/>
                         </RadioButton>
 
-                        <RadioButton x:Name="ColorSwitch"
-                                     GroupName="ToolsCanvas"
-                                     Margin="0 10 0 0"
-                                     Style="{StaticResource RadioButtonStyle}"
-                                     Template="{StaticResource RadioButtonTemplate}">
+                        <Button x:Name="ColorSwitch"
+                                Margin="0 10 0 0"
+                                Click="ColorSwitch_Click"
+                                Template="{StaticResource ButtonNoHover}"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Height="45">
                             <Rectangle x:Name="global_selected_color"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center" Width="25" Height="25" 
-                                           RadiusX="2" RadiusY="2"
-                                           Stroke="#343245"
-                                           StrokeThickness="1"
-                                           Fill="Black"
-                                           MouseEnter="toolBtn_MouseEnter"
-                                           MouseLeave="toolBtn_MouseLeave" />
-                        </RadioButton>
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Width="25" Height="25" 
+                                       RadiusX="2" RadiusY="2"
+                                       Stroke="#343245"
+                                       StrokeThickness="1"
+                                       Fill="Black"
+                                       MouseEnter="toolBtn_MouseEnter"
+                                       MouseLeave="toolBtn_MouseLeave" />
+                        </Button>
 
                     </StackPanel>
                 </Border>
@@ -744,7 +797,7 @@
                            MouseMove="InkCanvas_MouseMove"
                            PreviewMouseDown="InkCanvas_PreviewMouseDown"
                            UseCustomCursor="True"
-                           Cursor="Pen">
+                           Cursor="Arrow">
 
                     <InkCanvas.DefaultDrawingAttributes>
                         <DrawingAttributes x:Name="strokeAttr"
@@ -757,8 +810,11 @@
                     </InkCanvas.Background>
 
                 </InkCanvas>
+                
 
             </Border>
+            
+            
 
             <Border x:Name="TemplatePanelBorder"
                     Height="64"
@@ -859,24 +915,6 @@
 
                 </StackPanel>
             </Border>
-
-            <!--<StackPanel Margin="20 0 0 20" Grid.Row="3" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                <Border Margin="0 10 0 0" Grid.Row="3" Grid.Column="1" Width="170" Height="36" Background="#F9F9F9" BorderBrush="#E6E6E6"
-            BorderThickness="1" CornerRadius="18"  GotFocus="canvas_GotFocus">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <Image Source="..\Resources\Assets\trace.png" Width="24" Height="24" Margin="10 0 0 0"/>
-                        <TextBlock Text="Tracing paper" FontFamily="Massilia" FontSize="14" FontWeight="Medium" Foreground="#6A6A6A" Margin="5 5 0 0"/>
-                        <uc:BinaryToggleUC x:Name="tracing_paper_toggle" Margin="7 2 0 0"  Visibility="Visible" LostFocus="draw_menu_LostFocus"/>
-                    </StackPanel>
-
-                </Border>
-                -->
-            <!--<ToggleButton x:Name="transparency_toggle" Content="Transparent" Width="80"
-            Checked="ToggleCanvasTransparent_Checked" Unchecked="ToggleCanvasTransparen_Unchecked"/>-->
-            <!-- <TextBlock Text="{Binding ElementName=draw_menu, Path=SliderValue}" HorizontalAlignment="Center"/>-->
-            <!--
-
-            </StackPanel>-->
 
             <Image x:Name="logo_1"
                    Source="..\Resources\Assets\jot_it_down.png"

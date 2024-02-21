@@ -1,10 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		
+
+		<ProjectName>JotWin</ProjectName>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<Version>1.2.2</Version>
+		<OutputPath>bin\$(Configuration)\$(ProjectName)-$(Version)\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<Nullable>enable</Nullable>
@@ -16,14 +21,19 @@
 	<ItemGroup>
 		
 		<Compile Remove="ViewModel\Helpers\UndoManagerControl.cs" />
+		
+		<Folder Include="Resources\exportAssets\" />
 		<Folder Include="thirdParty\" />
 		<Folder Include="ViewModel\Commands\" />
 		<Folder Include="x64\Debug\" />
 		<Resource Include="Resources\Assets\*" />
 		<Resource Include="Resources\*" />
+		<None Remove="Resources\Assets\magic_drop.ico" />
 		<Content Include="JotLogo.ico" />
+		<PackageReference Include="InputSimulator" Version="1.0.4" />
 		<PackageReference Include="JWT" Version="10.1.1" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+		<PackageReference Include="MouseKeyHook" Version="5.7.1" />
 		<PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
@@ -32,6 +42,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="Resources\exportAssets\Blank.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Resources\exportAssets\magic_drop.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Resources\exportAssets\screenshot.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="thirdParty\displayToJSON.exe">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

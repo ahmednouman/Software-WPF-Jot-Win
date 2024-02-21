@@ -1,13 +1,8 @@
 ﻿using JotWin.View;
 using JotWin.ViewModel.Helpers.UndoManager;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Ink;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
@@ -19,7 +14,7 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
 
         public static void saveCanvasToFile(MainAppWindow mainWin)
         {
-            using (SQLiteConnection connection = new SQLiteConnection(App.savedTabsDB))
+            using (SQLiteConnection connection = new(App.savedTabsDB))
             {
                 connection.CreateTable<savedTab>();
                 var tabs = connection.Table<savedTab>().ToList();
@@ -27,7 +22,7 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
                 bool isFileExists = tabs.Any(tab => tab.Name == mainWin.selectedTab.TabName);
                 if(isFileExists)
                 {
-                    SaveStrokesToFile(mainWin);
+                    //SaveStrokesToFile(mainWin);
                     serializeCanvasToXml(mainWin);
                     saveCanvasThumb(mainWin);
                     return;
@@ -39,18 +34,18 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
 
             }
 
-            SaveStrokesToFile(mainWin);
+            //SaveStrokesToFile(mainWin);
             serializeCanvasToXml(mainWin);
             saveCanvasThumb(mainWin);
 
-            savedTab saved_tab = new savedTab()
+            savedTab saved_tab = new()
             {
                 Name = mainWin.selectedTab.TabName,
                 Path = Path.Combine(App.savedCanvasDirectory, mainWin.selectedTab.TabName),
                 ImagePath = Path.Combine(App.savedCanvasDirectory, mainWin.selectedTab.TabName + ".png")
             };
 
-            using (SQLiteConnection connection = new SQLiteConnection(App.savedTabsDB))
+            using (SQLiteConnection connection = new(App.savedTabsDB))
             {
                 connection.CreateTable<savedTab>();
                 connection.Insert(saved_tab);
@@ -62,17 +57,17 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
         {
             mainWin.mainTabsVM.AddTab();
             mainWin.canvasLogoAction(false);
-            UndoAPI.SetUndoBtn(mainWin, "inactive");
+            UndoAPI.SetUndoButtonActive(mainWin, false);
             mainWin.selectedTab.TabName = fileData.Name;
             deserializeXml(mainWin, fileData);
-            openStrokeFile(mainWin, fileData);
+            //openStrokeFile(mainWin, fileData);
 
             mainWin.tabDataList[mainWin.mainTabsVM.SelectedTab].tabUndoManager.SaveState(mainWin.DrawingCanvas);
         }
 
         public static void readSaveTabsDB(MainAppWindow mainWin)
         {
-            using (SQLiteConnection connection = new SQLiteConnection(App.savedTabsDB))
+            using (SQLiteConnection connection = new(App.savedTabsDB))
             {
                 connection.CreateTable<savedTab>();
                 var tabs = connection.Table<savedTab>().ToList();
@@ -83,7 +78,7 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
 
         public static void deleteTabsDB(MainAppWindow mainWin, savedTab fileData)
         {
-            using (SQLiteConnection connection = new SQLiteConnection(App.savedTabsDB))
+            using (SQLiteConnection connection = new(App.savedTabsDB))
             {
                 connection.CreateTable<savedTab>();
                 connection.Delete(fileData);
@@ -91,45 +86,44 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
             }
         }
 
-        public static void openStrokeFile(MainAppWindow mainWin, savedTab fileData)
-        {
-            string filePath = fileData.Path + ".ink";
-            //string filePath = Path.Combine(App.savedCanvasDirectory, "test.ink");
+        //public static void openStrokeFile(MainAppWindow mainWin, savedTab fileData)
+        //{
+        //    string filePath = fileData.Path + ".ink";
+        //    //string filePath = Path.Combine(App.savedCanvasDirectory, "test.ink");
 
-            using (System.IO.FileStream fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-            {
-                StrokeCollection loadedStrokes = new StrokeCollection(fileStream);
-                fileStream.Close();
+        //    using (System.IO.FileStream fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+        //    {
+        //        StrokeCollection loadedStrokes = new StrokeCollection(fileStream);
+        //        fileStream.Close();
 
-                mainWin.DrawingCanvas.Strokes.Clear();
-                mainWin.DrawingCanvas.Strokes.Add(loadedStrokes);
-            }
-        }
+        //        mainWin.DrawingCanvas.Strokes.Clear();
+        //        mainWin.DrawingCanvas.Strokes.Add(loadedStrokes);
+        //    }
+        //}
 
-        public static void SaveStrokesToFile(MainAppWindow mainWin)
-        {
-            canvasState current_canvas = mainWin.selectedTab.canvasData.tabUndoManager.getCurrentState();
+        //public static void SaveStrokesToFile(MainAppWindow mainWin)
+        //{
+        //    canvasState current_canvas = mainWin.selectedTab.canvasData.tabUndoManager.getCurrentState();
 
-            string filePath = Path.Combine(App.savedCanvasDirectory, mainWin.selectedTab.TabName + ".ink");
-            //string filePath = Path.Combine(App.savedCanvasDirectory, "test.ink");
+        //    string filePath = Path.Combine(App.savedCanvasDirectory, mainWin.selectedTab.TabName + ".ink");
+        //    //string filePath = Path.Combine(App.savedCanvasDirectory, "test.ink");
 
-            StrokeCollection strokes = current_canvas._extendedStroke.Strokes;
+        //    StrokeCollection strokes = current_canvas._extendedStroke.Strokes;
 
-            using (System.IO.FileStream fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
-            {
-                strokes.Save(fileStream);
-                fileStream.Close();
-            }
-        }
+        //    using (System.IO.FileStream fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+        //    {
+        //        strokes.Save(fileStream);
+        //        fileStream.Close();
+        //    }
+        //}
 
         public static void serializeCanvasToXml(MainAppWindow mainWin)
         {
-            canvasState? currentCanvas = mainWin.selectedTab.canvasData.tabUndoManager.getCurrentState();
+            CanvasState? currentCanvas = mainWin.selectedTab.canvasData.tabUndoManager.getCurrentState();
 
             string filePath = Path.Combine(App.savedCanvasDirectory, mainWin.selectedTab.TabName+".xml");
-            //string filePath = Path.Combine(App.savedCanvasDirectory, "test.xml");
 
-            var xmlSerializer = new XmlSerializer(typeof(canvasState));
+            var xmlSerializer = new XmlSerializer(typeof(CanvasState));
             using (var writer = new StreamWriter(filePath))
             {
                 xmlSerializer.Serialize(writer, currentCanvas);
@@ -140,9 +134,9 @@ namespace JotWin.ViewModel.Helpers.SaveLoad
         {
             string filePath = fileData.Path + ".xml";
 
-            XmlSerializer xmlSerializer = new(typeof(canvasState));
+            XmlSerializer xmlSerializer = new(typeof(CanvasState));
             using StreamReader reader = new(filePath);
-            var canvasContent = (canvasState)xmlSerializer.Deserialize(reader);
+            var canvasContent = (CanvasState)xmlSerializer.Deserialize(reader);
             CanvasAnalyzer.reconstructCanvas(mainWin.DrawingCanvas, canvasContent);
         }
 

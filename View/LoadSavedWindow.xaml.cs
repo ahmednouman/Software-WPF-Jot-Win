@@ -79,7 +79,7 @@ namespace JotWin.View
 
             if (selectedIndex >= 0 && selectedIndex < savedList.Count)
             {
-                MainAppWindow mainAppWindow = (MainAppWindow)this.Owner;
+                MainAppWindow mainAppWindow = (MainAppWindow)Owner;
                 savedTab? correspondingSavedTab = rcvd_savedList.FirstOrDefault(tab => tab.Name == savedList[selectedIndex].Name);
                 if (correspondingSavedTab == null)
                 {

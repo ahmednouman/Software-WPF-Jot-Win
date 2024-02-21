@@ -1,5 +1,5 @@
 ﻿using JotWin.View;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,12 +7,13 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 
-
 namespace JotWin.Controls.CanvasToolsMenu
 {
     public partial class TextMenuUC : UserControl
     {
-        public string selectedTextID = "Arial";
+        public string selectedFont = "Georgia";
+        private Rectangle? prevRectangle;
+
         public TextMenuUC()
         {
             InitializeComponent();
@@ -22,20 +23,21 @@ namespace JotWin.Controls.CanvasToolsMenu
         {
             double sliderValue = e.NewValue;
 
-            MainAppWindow? main = Window.GetWindow(this) as MainAppWindow;
-            if (main != null)
+            if (Window.GetWindow(this) is MainAppWindow main)
             {
-
                 main.drawingSetting.TextSize = (int)sliderValue;
+                main.FontSizeSelected();
             }
         }
+
         private void Rectangle_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (sender is Grid grid)
             {
                 Rectangle rectangle = FindChild<Rectangle>(grid);
+                TextBlock textBlock = FindChild<TextBlock>(grid);
 
-                if (rectangle != null && rectangle.Name != selectedTextID)
+                if (textBlock.Text != selectedFont)
                 {
                     rectangle.Fill = new BrushConverter().ConvertFrom("#F2F0F2") as Brush;
                 }
@@ -47,8 +49,9 @@ namespace JotWin.Controls.CanvasToolsMenu
             if (sender is Grid grid)
             {
                 Rectangle rectangle = FindChild<Rectangle>(grid);
+                TextBlock textBlock = FindChild<TextBlock>(grid);
 
-                if (rectangle != null && rectangle.Name != selectedTextID)
+                if (textBlock.Text != selectedFont)
                 {
                     rectangle.Fill = new SolidColorBrush(Colors.Transparent);
                 }
@@ -83,36 +86,33 @@ namespace JotWin.Controls.CanvasToolsMenu
 
         private void selectFont_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (sender is FrameworkElement frameworkElement)
+            if (sender is not Rectangle rectangle
+                || rectangle.Parent is not Panel parentContainer)
             {
-                if (frameworkElement.Parent is Panel parentContainer)
+                return;
+            }
+
+            var textBlock = parentContainer.Children.OfType<TextBlock>().FirstOrDefault();
+
+            if (prevRectangle != null)
+            {
+                prevRectangle.Fill = new SolidColorBrush(Colors.Transparent);
+            }
+
+            selectedFont = textBlock.FontFamily.ToString();
+            rectangle.Fill = new BrushConverter().ConvertFrom("#E1E1E1") as Brush;
+            Debug.WriteLine(selectedFont);
+            if (textBlock != null)
+            {
+                string font = textBlock.FontFamily.ToString();
+                if (Window.GetWindow(this) is MainAppWindow main)
                 {
-                    var textBlock = parentContainer.Children.OfType<TextBlock>().FirstOrDefault();
-                    var rect = parentContainer.Children.OfType<Rectangle>().FirstOrDefault();
-
-                    FrameworkElement? foundElement = FindName(selectedTextID) as FrameworkElement;
-
-                    if (foundElement is Rectangle rectangle)
-                    {
-                        rectangle.Fill = new SolidColorBrush(Colors.Transparent);
-                    }
-
-                    if (rect != null)
-                    {
-                        selectedTextID = rect.Name;
-                        rect.Fill = new BrushConverter().ConvertFrom("#E1E1E1") as Brush;
-                    }
-
-                    if (textBlock != null)
-                    {
-                        string textBlockText = textBlock.Text;
-                        if (Window.GetWindow(this) is MainAppWindow main)
-                        {
-                            main.drawingSetting.selectedFont = textBlockText;
-                        }
-                    }
+                    main.drawingSetting.selectedFont = font;
+                    main.FontSelected();
                 }
             }
+
+            prevRectangle = rectangle;
         }
     }
 }

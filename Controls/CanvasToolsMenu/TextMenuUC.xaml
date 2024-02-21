@@ -86,69 +86,160 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
-        
 
     </UserControl.Resources>
-    
 
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Left" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="190" />
-                
 
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="346"/>
+    <Grid VerticalAlignment="Center"
+          HorizontalAlignment="Left" >
 
-            </Grid.RowDefinitions>
+        <Rectangle Width="188" Height="270"
+                   Fill="#F9F9F9"
+                   RadiusX="18" RadiusY="18"
+                   Stroke="#E6E6E6"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Grid.Column="1" Grid.Row="1" />
 
-        <Rectangle Width="188" Height="344" Fill="#F9F9F9" RadiusX="18" RadiusY="18" Stroke="#E6E6E6" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">
+        <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Grid.Column="1" Grid.Row="1">
 
-                <TextBlock Text="Size" FontFamily="Massilia" FontSize="14" FontWeight="Medium" Foreground="#343245" Margin="16 16 0 0"/>
-                
-                <Grid Margin="16 10 0 0">
-                    <Rectangle Width="150" Height="8" Fill="Transparent" Stroke="#343245" StrokeThickness="1"  RadiusX="5" RadiusY="5" Margin="0 0 0 0"/>
-                    <Slider x:Name="textSize_slider" Style="{StaticResource Horizontal_Slider}" VerticalAlignment="Center"   Width="150" Margin="0,0,0,0" ValueChanged="TextSize_ValueChanged" Value="10" Minimum="8" Maximum="60" TickFrequency="1"></Slider>
-                </Grid>
-                
-                <TextBlock Text="Fonts" FontFamily="Massilia" FontSize="14" FontWeight="Medium" Foreground="#343245" Margin="16 10 0 0"/>
+            <TextBlock Text="Size"
+                       FontFamily="Massilia"
+                       FontSize="14"
+                       FontWeight="Medium"
+                       Foreground="#343245"
+                       Margin="16 16 0 0" />
 
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20" MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="Arial" Fill="#E1E1E1" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Arial" VerticalAlignment="Center" FontSize="12" FontFamily="Arial" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="TimesNewRoman" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Times New Roman" FontSize="12" FontFamily="Times New Roman" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="GillSans" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Gill Sans" FontSize="12" FontFamily="Gill Sans" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave" >
-                    <Rectangle x:Name="Impact" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Impact" FontSize="12" FontFamily="Impact" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown" />
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="SegoeUI" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Segoe UI" FontSize="12" FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="Stencil" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Stencil" FontSize="12" FontFamily="Stencil" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="ComicSansMS" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown" />
-                    <TextBlock Text="Comic Sans MS" FontSize="12" FontFamily="Comic Sans MS" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
-                <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16 10 0 0" Width="156" Height="20"  MouseEnter="Rectangle_MouseEnter" MouseLeave="Rectangle_MouseLeave">
-                    <Rectangle x:Name="SnapITC" Fill="Transparent" RadiusX="8" RadiusY="8"  MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                    <TextBlock Text="Snap ITC" FontSize="12" FontFamily="Snap ITC" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
-                </Grid>
+            <Grid Margin="16 10 0 0">
 
-            </StackPanel>
-        </Grid>
+                <Rectangle Width="150" Height="8"
+                           Fill="Transparent"
+                           Stroke="#343245"
+                           StrokeThickness="1"
+                           RadiusX="5" RadiusY="5" />
+
+                <Slider x:Name="textSize_slider"
+                        Style="{StaticResource Horizontal_Slider}"
+                        VerticalAlignment="Center"
+                        Width="150"
+                        ValueChanged="TextSize_ValueChanged"
+                        Value="10"
+                        Minimum="8" Maximum="60"
+                        TickFrequency="1" />
+
+            </Grid>
+
+            <TextBlock Text="Fonts"
+                       FontFamily="Massilia"
+                       FontSize="14"
+                       FontWeight="Medium"
+                       Foreground="#343245"
+                       Margin="16 10 0 0" />
+
+            <Grid VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="16 10 0 0"
+                  Width="156" Height="20"
+                  MouseEnter="Rectangle_MouseEnter"
+                  MouseLeave="Rectangle_MouseLeave">
+
+                <Rectangle Fill="#E1E1E1"
+                           RadiusX="8" RadiusY="8"
+                           MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Georgia"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           FontFamily="Georgia"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+            </Grid>
+
+            <Grid VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="16 10 0 0"
+                  Width="156" Height="20"
+                  MouseEnter="Rectangle_MouseEnter"
+                  MouseLeave="Rectangle_MouseLeave">
+
+                <Rectangle Fill="Transparent"
+                           RadiusX="8" RadiusY="8"
+                           MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Impact"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           FontFamily="Impact"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+            </Grid>
+
+            <Grid VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="16 10 0 0"
+                  Width="156" Height="20"
+                  MouseEnter="Rectangle_MouseEnter"
+                  MouseLeave="Rectangle_MouseLeave">
+
+                <Rectangle Fill="Transparent"
+                           RadiusX="8" RadiusY="8"
+                           MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Ink Free"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           FontFamily="Ink Free"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+            </Grid>
+
+            <Grid VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="16 10 0 0"
+                  Width="156" Height="20"
+                  MouseEnter="Rectangle_MouseEnter"
+                  MouseLeave="Rectangle_MouseLeave">
+
+                <Rectangle Fill="Transparent"
+                           RadiusX="8" RadiusY="8"
+                           MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Tahoma"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           FontFamily="Tahoma"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+            </Grid>
+
+            <Grid VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="16 10 0 0"
+                  Width="156" Height="20"
+                  MouseEnter="Rectangle_MouseEnter"
+                  MouseLeave="Rectangle_MouseLeave">
+
+                <Rectangle Fill="Transparent"
+                           RadiusX="8" RadiusY="8"
+                           MouseLeftButtonDown="selectFont_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Times New Roman"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           FontFamily="Times New Roman"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+            </Grid>
+
+        </StackPanel>
+    </Grid>
 
 </UserControl>

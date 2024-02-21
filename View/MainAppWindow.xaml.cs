@@ -27,6 +27,8 @@ using System.Security.Cryptography;
 using JWT.Builder;
 using JWT.Algorithms;
 using Newtonsoft.Json.Linq;
+using Gma.System.MouseKeyHook;
+using System.Runtime.InteropServices;
 
 namespace JotWin.View
 {
@@ -53,6 +55,9 @@ namespace JotWin.View
         public PenMenu pen_menu;
         public saveTab? save_win;
         private LicenseWindow? licenseWindow;
+        public DropJot? dropJot_win;
+
+        public mouseKeyboardEventsHelpers mouseKeyboardHook;
 
         private readonly DispatcherTimer copyTimer;
         private readonly DispatcherTimer winResizeTimer;
@@ -114,23 +119,29 @@ namespace JotWin.View
         public static readonly RoutedCommand SaveCommand = new();
         public static readonly RoutedCommand OpenCommand = new();
 
-        private static HttpClient _client = new();
+        private static readonly HttpClient httpClient = new();
 
         public MainAppWindow()
         {
             Hide();
             InitializeComponent();
 
+            mouseKeyboardHook = new mouseKeyboardEventsHelpers(this);
+            mouseKeyboardHook.Subscribe(Hook.GlobalEvents());
+
             pen_menu = new PenMenu(this);
+            dropJot_win = new DropJot(this);
             mainTabsVM = (MainTabsVM)FindResource("mainTabVM");
             selectedTab = mainTabsVM.Tabs[0];
 
-            DrawingCanvas.StrokeCollected += inkCanvas_StrokeCollected;
-            DrawingCanvas.SelectionChanged += inkCanvas_SelectionChanged;
-            DrawingCanvas.SelectionMoved += inkCanvas_SelectionMoved;
-            DrawingCanvas.SelectionResized += inkCanvas_SelectionResized;
+            DrawingCanvas.StrokeCollected += InkCanvas_StrokeCollected;
+            DrawingCanvas.SelectionChanged += InkCanvas_SelectionChanged;
+            DrawingCanvas.SelectionMoved += InkCanvas_SelectionMoved;
+            DrawingCanvas.SelectionResized += InkCanvas_SelectionResized;
             DrawingCanvas.StylusButtonDown += InkCanvas_StylusButtonDown;
             DrawingCanvas.StylusButtonUp += InkCanvas_StylusButtonUp;
+            DrawingCanvas.PreviewStylusInAirMove += inkCanvas_PreviewStylusInAirMove;
+
 
             tabManager = new TabHelpers(this);
 
@@ -175,15 +186,21 @@ namespace JotWin.View
             }
         }
 
+
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             ExtenalMonitorInfo.resizeAppWindow(this);
+
+            //dropJot_win.Show();
 
             canvasTemplate = CanvasTemplate.Blank;
             tabDataList[mainTabsVM.SelectedTab].canvasBackground = canvasTemplate;
 
             Storyboard.SetTargetName(templatePanelAnimation, TemplatePanelBorder.Name);
             Storyboard.SetTargetProperty(templatePanelAnimation, new PropertyPath(OpacityProperty));
+
+            JumpListHelpers.InitializeJumpList();
         }
 
         public void triggerAdjustWinSize()
@@ -203,7 +220,7 @@ namespace JotWin.View
 
             try
             {
-                using var resp = await _client.SendAsync(req);
+                using var resp = await httpClient.SendAsync(req);
 
                 if (resp.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -229,7 +246,7 @@ namespace JotWin.View
                 return default;
             }
         }
-        
+
         private static RSA RsaFromFile(string filename)
         {
             RSA rsa = RSA.Create();
@@ -308,6 +325,7 @@ namespace JotWin.View
                 }
 
                 Show();
+                SetOpenOnStartup(true);
                 return;
             }
 
@@ -315,11 +333,36 @@ namespace JotWin.View
             licenseWindow.ShowDialog();
         }
 
+        private static void SetOpenOnStartup(bool shouldOpen)
+        {
+            var path = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+            RegistryKey? key = Registry.CurrentUser.OpenSubKey(path, true);
+            if (key == null)
+            {
+                return;
+            }
+
+            Debug.WriteLine("setting open-on-startup " + shouldOpen);
+            if (shouldOpen)
+            {
+                string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
+                key.SetValue("Jot", exePath);
+            }
+            else
+            {
+                key.DeleteValue("Jot", false);
+            }
+        }
+
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
-                selectedTab = e.AddedItems[0] as TabVM;
+                var tab = e.AddedItems[0];
+                if (tab != null)
+                {
+                    selectedTab = (TabVM)tab;
+                }
             }
 
             if (selectedTab != null && mainTabsVM != null)
@@ -327,7 +370,6 @@ namespace JotWin.View
                 mainTabsVM.updateTabSelected(selectedTab);
                 tabManager.loadCanvasContent(selectedTab);
             }
-
         }
 
         private void TabControl_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -409,31 +451,32 @@ namespace JotWin.View
             }
         }
 
-        private void inkCanvas_SelectionChanged(object? sender, EventArgs e)
+        private void InkCanvas_SelectionChanged(object? sender, EventArgs e)
         {
 
         }
 
-        private void inkCanvas_StrokeErased(object sender, RoutedEventArgs e)
-        {
-            tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
-        }
-
-        private async void inkCanvas_SelectionResized(object? sender, EventArgs e)
+        private async void InkCanvas_SelectionResized(object? sender, EventArgs e)
         {
             await Task.Delay(300);
             tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
         }
 
-        private async void inkCanvas_SelectionMoved(object? sender, EventArgs e)
+        private async void InkCanvas_SelectionMoved(object? sender, EventArgs e)
         {
             await Task.Delay(300);
             tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
         }
 
-        private void inkCanvas_StrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e)
+        private void InkCanvas_StrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e)
         {
-           // historyControl.SaveState(DrawingCanvas);
+            UIStroke uiStroke = new(e.Stroke);
+            DrawingCanvas.Strokes.Remove(e.Stroke);
+
+            Panel.SetZIndex(uiStroke, tabDataList[mainTabsVM.SelectedTab].zIndexCount);
+            DrawingCanvas.Children.Add(uiStroke);
+            tabDataList[mainTabsVM.SelectedTab].zIndexCount++;
+            
             tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
         }
 
@@ -444,24 +487,19 @@ namespace JotWin.View
             DrawCanvasTemplate();
             winResizeTimer.Stop();
         }
+
         private void copyTimer_Tick(object? sender, EventArgs e)
         {
-            Border copyBtnBorder = (Border)canvasCopy.Template.FindName(
-                "copyBtnBorder",
-                canvasCopy
-            );
-
-            copyBtnBorder.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#60269E"));
-           
             copyText.Text = "Copy";
-            canvasCopy.IsHitTestVisible = true;
-            copyBtnBorder.IsHitTestVisible = true;
+
+            canvasCopy.IsEnabled = true;
 
             copyTimer.Stop();
         }
 
         private void Store_Click(object sender, RoutedEventArgs e)
         {
+
             WindowState = WindowState.Minimized;
         }
 
@@ -488,10 +526,28 @@ namespace JotWin.View
                 };
                 save_win.Show();
             }
-
-            
         }
 
+        public void initiate_dropJot_win()
+        {
+            dropJot_win.Closed += (s, args) =>
+            {
+                IsEnabled = true;
+            };
+
+            dropJot_win.Loaded += (s, args) =>
+            {
+                dropJot_win.Visibility = Visibility.Visible;
+            };
+
+            StateChanged += (s, args) =>
+            {
+                if (WindowState == WindowState.Minimized) { }
+                else { }
+            };
+
+            dropJot_win.Hide();
+        }
 
         public void initiate_pen_menu()
         {
@@ -514,11 +570,6 @@ namespace JotWin.View
             pen_menu.Hide();
         }
 
-        public void setCanvasTransparent(bool status)
-        {
-            DrawingCanvas.Background = new SolidColorBrush(Colors.Transparent);
-        }
-
         private void closeTab_MouseEnter(object sender, MouseEventArgs e)
         {
 
@@ -527,37 +578,6 @@ namespace JotWin.View
         private void closeTab_MouseLeave(object sender, MouseEventArgs e)
         {
 
-        }
-
-        private void copyCanvas_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Border copyBtnBorder = (Border)canvasCopy.Template.FindName(
-                "copyBtnBorder",
-                canvasCopy
-            );
-            if (copyBtnBorder != null && copyBtnBorder.IsHitTestVisible == true)
-            {
-                copyBtnBorder.Background = new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString("#7D31CE")
-                );
-                //button.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#7D31CE"));
-            }
-        }
-
-        private void copyCanvas_MouseLeave(object sender, MouseEventArgs e)
-        {
-            Border copyBtnBorder = (Border)canvasCopy.Template.FindName(
-                "copyBtnBorder",
-                canvasCopy
-            );
-            if (copyBtnBorder != null && copyBtnBorder.IsHitTestVisible == true)
-            {
-                copyBtnBorder.Background = new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString("#60269E")
-                );
-                //button.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#60269E"));
-            }
-            else { }
         }
 
         private void saveCanvas_MouseEnter(object sender, MouseEventArgs e)
@@ -611,7 +631,7 @@ namespace JotWin.View
         private void DrawTools_Click(object sender, RoutedEventArgs e)
         {
             var radiobutton = (RadioButton)sender;
-            string radioBPressed = radiobutton.Name.ToString();
+            string radioBPressed = radiobutton.Name;
 
             if (radioBPressed == "Draw")
             {
@@ -659,18 +679,6 @@ namespace JotWin.View
                 shapes_menu.UpdateSelectedShapeButton();
                 shapes_menu.Visibility = Visibility.Visible;
             }
-            else if (radioBPressed == "ColorSwitch")
-            {
-                hideAllToolMenus();
-                color_menu.Visibility = Visibility.Visible;
-                DrawingCanvas.EditingMode = InkCanvasEditingMode.None;
-                var inkDrawingAttributes = new DrawingAttributes
-                {
-                    Color = drawingSetting.SelectedColor,
-                };
-
-                DrawingCanvas.DefaultDrawingAttributes = inkDrawingAttributes;
-            }
         }
 
         private void hideAllToolMenus()
@@ -692,6 +700,7 @@ namespace JotWin.View
         {
             hideAllToolMenus();
         }
+
         public void updateDrawingSettings()
         {
             Color highlightColor = Color.FromArgb(
@@ -713,7 +722,7 @@ namespace JotWin.View
                     : drawingSetting.IsHighlighter ? drawingSetting.HighlighterSize : 2,
                 StylusTip = drawingSetting.IsHighlighter ? StylusTip.Rectangle : StylusTip.Ellipse,
                 FitToCurve = true,
-                IgnorePressure = drawingSetting.IsHighlighter,
+                IgnorePressure = false,
             };
 
             DrawingCanvas.DefaultDrawingAttributes = inkDrawingAttributes;
@@ -762,50 +771,38 @@ namespace JotWin.View
             if (show_logo)
             {
                 logo_1.Visibility = Visibility.Visible;
+                canvasCopy.IsEnabled = false;
             }
             else
             {
                 logo_1.Visibility = Visibility.Collapsed;
+                if (!copyTimer.IsEnabled)
+                {
+                    canvasCopy.IsEnabled = true;
+                }
 
                 tabDataList[mainTabsVM.SelectedTab].hasSketch = true;
 
-                UndoAPI.SetUndoBtn(this, "active");
+                UndoAPI.SetUndoButtonActive(this, true);
             }
         }
 
         private void InkCanvas_StylusButtonDown(object sender, StylusButtonEventArgs e)
         {
-            if (e.StylusDevice.Inverted)
-            {
-                erasing = true;
-            }
 
-            if (e.StylusButton.Guid == StylusPointProperties.BarrelButton.Id)
-            {
-                DrawingCanvas.EditingMode = InkCanvasEditingMode.None;
-
-                if(tabDataList[mainTabsVM.SelectedTab].isForMajicJot)
-                {
-                    penBarrelBtnClick = true;
-                    MajicHelpers.finishMajicJot();
-                    tabDataList[mainTabsVM.SelectedTab].isForMajicJot = false;
-                }
-
-                return;
-            }
         }
 
         private void InkCanvas_StylusButtonUp(object sender, StylusButtonEventArgs e)
         {
             erasing = false;
-            if(penBarrelBtnClick)
+            if (penBarrelBtnClick)
             {
                 penBarrelBtnClick = false;
                 if (drawingSetting.IsSelect)
                 {
                     DrawingCanvas.EditingMode = InkCanvasEditingMode.Select;
                 }
-                else if(drawingSetting.IsText || drawingSetting.IsShapes || drawingSetting.IsEraser || drawingSetting.IsColorSwitch)
+                else if (drawingSetting.IsText || drawingSetting.IsShapes || drawingSetting.IsEraser || drawingSetting.IsColorSwitch)
                 {
                     DrawingCanvas.EditingMode = InkCanvasEditingMode.None;
                 }
@@ -814,6 +811,11 @@ namespace JotWin.View
                     DrawingCanvas.EditingMode = InkCanvasEditingMode.Ink;
                 }
             }
+
+        }
+
+        private void inkCanvas_PreviewStylusInAirMove(object sender, StylusEventArgs e)
+        {
 
         }
 
@@ -842,6 +844,55 @@ namespace JotWin.View
             }
         }
 
+        public void ColorSelected(Color color)
+        {
+            tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
+
+            foreach (Stroke stroke in DrawingCanvas.GetSelectedStrokes())
+            {
+                stroke.DrawingAttributes.Color = color;
+            }
+
+            SolidColorBrush brush = new(color);
+            foreach (UIElement element in DrawingCanvas.GetSelectedElements())
+            {
+                if (element is Shape shape)
+                {
+                    shape.Stroke = brush;
+                    if (((SolidColorBrush)shape.Fill).Color != Colors.Transparent)
+                    {
+                        shape.Fill = brush;
+                    }
+                }
+                else if (element is TextBox textBox)
+                {
+                    textBox.Foreground = brush;
+                }
+            }
+        }
+
+        public void FontSizeSelected()
+        {
+            foreach (var e in DrawingCanvas.GetSelectedElements())
+            {
+                if (e is TextBox textBox)
+                {
+                    textBox.FontSize = drawingSetting.TextSize;
+                }
+            }
+        }
+
+        public void FontSelected()
+        {
+            foreach (var e in DrawingCanvas.GetSelectedElements())
+            {
+                if (e is TextBox textBox)
+                {
+                    textBox.FontFamily = new FontFamily(drawingSetting.selectedFont);
+                }
+            }
+        }
+
         private void EraseAt(Point point)
         {
             List<UIElement> elementsToRemove = new();
@@ -849,6 +900,7 @@ namespace JotWin.View
 
             foreach (FrameworkElement element in DrawingCanvas.Children)
             {
+                Debug.WriteLine(element);
                 var left = InkCanvas.GetLeft(element);
                 var top = InkCanvas.GetTop(element);
                 var width = element.Width;
@@ -937,11 +989,11 @@ namespace JotWin.View
             return false;
         }
 
-        private void insertTextBox(Point mousePosition)
+        private async void insertTextBox(Point mousePosition)
         {
             RemoveEmptyTextBoxes();
 
-            TextBox textBox = new TextBox
+            TextBox textBox = new()
             {
                 Name = "TextBox_1",
                 Width = 300,
@@ -979,6 +1031,7 @@ namespace JotWin.View
             DrawingCanvas.Children.Add(textBox);
             tabDataList[mainTabsVM.SelectedTab].zIndexCount++;
 
+            await Task.Delay(100);
             textBox.Focus();
         }
 
@@ -1014,7 +1067,7 @@ namespace JotWin.View
             }
             if (editingTextBox)
             {
-               // historyControl.SaveState(DrawingCanvas);
+                // historyControl.SaveState(DrawingCanvas);
                 tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
                 editingTextBox = false;
             }
@@ -1080,7 +1133,7 @@ namespace JotWin.View
         {
             if (drawingSetting.isDrawing)
             {
-               // historyControl.SaveState(DrawingCanvas);
+                // historyControl.SaveState(DrawingCanvas);
                 tabDataList[mainTabsVM.SelectedTab].tabUndoManager.SaveState(DrawingCanvas);
 
                 drawingSetting.isDrawing = false;
@@ -1109,15 +1162,8 @@ namespace JotWin.View
 
         private void canvasCopy_Click(object sender, RoutedEventArgs e)
         {
-            Border copyBtnBorder = (Border)canvasCopy.Template.FindName(
-                "copyBtnBorder",
-                canvasCopy
-            );
+            canvasCopy.IsEnabled = false;
 
-            copyBtnBorder.IsHitTestVisible = false;
-            copyBtnBorder.Background = new SolidColorBrush(
-                (Color)ColorConverter.ConvertFromString("#975BD7")
-            );
             copyText.Text = "Copied";
 
             SystemFileControl.CopyCanvasToClipboard(DrawingCanvas);
@@ -1127,12 +1173,36 @@ namespace JotWin.View
 
         private void canvasSave_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter =
-                "PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|All files (*.*)|*.*";
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter =
+                "PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|All files (*.*)|*.*"
+            };
+
             if (saveFileDialog.ShowDialog() == true)
             {
                 SystemFileControl.SaveCanvasToFile(saveFileDialog.FileName, DrawingCanvas);
+            }
+        }
+
+        private void canvasDone_Click(object sender, RoutedEventArgs e)
+        {
+            MajicHelpers.finishMajicJot();
+            tabDataList[mainTabsVM.SelectedTab].isForMajicJot = false;
+            doneCopyBtnControl("copy");
+        }
+
+        public void doneCopyBtnControl(string option = "copy")
+        {
+            if(option == "done")
+            {
+                canvasCopy.Visibility = Visibility.Collapsed;
+                canvasDone.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                canvasDone.Visibility = Visibility.Collapsed;
+                canvasCopy.Visibility = Visibility.Visible;
             }
         }
 
@@ -1232,7 +1302,7 @@ namespace JotWin.View
 
         public void triggerPenMenu()
         {
-            if (pen_menu.IsVisible)
+            if(pen_menu.IsVisible)
             {
                 pen_menu.Hide();
                 pen_menu.Topmost = false;
@@ -1244,7 +1314,7 @@ namespace JotWin.View
                 int y = ExtenalMonitorInfo.CursorY;
 
                 pen_menu.Left = x - (pen_menu.Width / 2);
-                pen_menu.Top = y - (pen_menu.Height / 2);
+                pen_menu.Top = y - (pen_menu.Height /2 );
 
                 pen_menu.WindowState = WindowState.Normal;
                 pen_menu.Topmost = true;
@@ -1255,67 +1325,62 @@ namespace JotWin.View
 
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-            if(tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanUndo)
+            var undoManager = tabDataList[mainTabsVM.SelectedTab].tabUndoManager;
+
+            if (undoManager == null || !undoManager.CanUndo)
             {
-                canvasState? updatedCanvas = tabDataList[mainTabsVM.SelectedTab].tabUndoManager.Undo();
-                if (updatedCanvas == null)
-                {
-                    return;
+                return;
             }
-                CanvasAnalyzer.reconstructCanvas(DrawingCanvas, updatedCanvas);
-                if(tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanUndo)
-                {
-                    UndoAPI.SetUndoBtn(this, "active");
-                }
-                else
-                {
-                    UndoAPI.SetUndoBtn(this, "inactive");
-                }
-                if(tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanRedo)
-                {
-                    UndoAPI.SetRedoBtn(this, "active");
-                }
-                else
-                {
-                    UndoAPI.SetRedoBtn(this, "inactive");
-                }
+
+            CanvasState? updatedCanvas = undoManager.Undo();
+
+            if (updatedCanvas == null)
+            {
+                return;
+            }
+
+            CanvasAnalyzer.reconstructCanvas(DrawingCanvas, updatedCanvas);
+
+            UndoAPI.SetUndoButtonActive(this, undoManager.CanUndo);
+            UndoAPI.SetRedoButtonActive(this, undoManager.CanRedo);
+
+            if (DrawingCanvas.Strokes.Count == 0 && DrawingCanvas.Children.Count == 0)
+            {
+                canvasLogoAction(true);
             }
         }
 
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
-            if (tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanRedo)
-            {
-                canvasState? updatedCanvas = tabDataList[mainTabsVM.SelectedTab].tabUndoManager.Redo();
-                if (updatedCanvas == null)
-                {
-                    return;
-                }
+            var undoManager = tabDataList[mainTabsVM.SelectedTab].tabUndoManager;
 
-                CanvasAnalyzer.reconstructCanvas(DrawingCanvas, updatedCanvas);
-                if (tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanUndo)
-                {
-                    UndoAPI.SetUndoBtn(this, "active");
-                }
-                else
-                {
-                    UndoAPI.SetUndoBtn(this, "inactive");
-                }
-                if (tabDataList[mainTabsVM.SelectedTab].tabUndoManager.CanRedo)
-                {
-                    UndoAPI.SetRedoBtn(this, "active");
-                }
-                else
-                {
-                    UndoAPI.SetRedoBtn(this, "inactive");
-                }
+            if (undoManager == null || !undoManager.CanRedo)
+            {
+                return;
+            }
+
+            CanvasState? updatedCanvas = undoManager.Redo();
+
+            if (updatedCanvas == null)
+            {
+                return;
+            }
+
+            CanvasAnalyzer.reconstructCanvas(DrawingCanvas, updatedCanvas);
+
+            UndoAPI.SetUndoButtonActive(this, undoManager.CanUndo);
+            UndoAPI.SetRedoButtonActive(this, undoManager.CanRedo);
+
+            if (DrawingCanvas.Strokes.Count != 0 || DrawingCanvas.Children.Count != 0)
+            {
+                canvasLogoAction(false);
             }
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             WindowsLowLevelHelpers.UnhookWindowsHookEx();
-            MouseHook.UnhookWindowsHookEx(mouseHook._hookID);   
+            MouseHook.UnhookWindowsHookEx(mouseHook._hookID);
         }
 
         void DrawCanvasTemplate()
@@ -1379,9 +1444,10 @@ namespace JotWin.View
             templatePanelAnimation.From = 0;
             templatePanelAnimation.To = 1;
             templatePanelStoryboard.Begin(this);
+            TemplatePanelBorder.Visibility = Visibility.Visible;
         }
 
-        void CloseTemplatePanel()
+        async void CloseTemplatePanel()
         {
             if (!templatePanelOpen)
             {
@@ -1391,6 +1457,8 @@ namespace JotWin.View
             templatePanelAnimation.From = 1;
             templatePanelAnimation.To = 0;
             templatePanelStoryboard.Begin(this);
+            await Task.Delay(250);
+            TemplatePanelBorder.Visibility = Visibility.Collapsed;
         }
 
         void TemplateControl_Click(object sender, RoutedEventArgs e)
@@ -1419,6 +1487,25 @@ namespace JotWin.View
                 _ => CanvasTemplate.Blank
             };
             tabDataList[mainTabsVM.SelectedTab].canvasBackground = canvasTemplate;
+        }
+
+        void ColorSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            hideAllToolMenus();
+
+            if (color_menu.Visibility == Visibility.Visible)
+            {
+                color_menu.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                color_menu.Visibility = Visibility.Visible;
+            }
+
+            DrawingCanvas.DefaultDrawingAttributes = new DrawingAttributes
+            {
+                Color = drawingSetting.SelectedColor,
+            };
         }
 
         void HandleSaveCommand(object sender, EventArgs e)

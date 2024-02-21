@@ -9,6 +9,9 @@ using System.Diagnostics;
 using JotWin.ViewModel.Helpers.MajicJot;
 using System.Threading.Tasks;
 
+using Gma.System.MouseKeyHook;
+using System.Runtime.InteropServices;
+
 namespace JotWin.ViewModel.Helpers
 {
     public static class WindowsLowLevelHelpers
@@ -213,5 +216,42 @@ namespace JotWin.ViewModel.Helpers
         }
 
         #endregion
+
+    }
+
+    public class mouseKeyboardEventsHelpers
+    {
+        public IKeyboardMouseEvents m_Events;
+        public MainAppWindow mainWindow;
+
+        public mouseKeyboardEventsHelpers(MainAppWindow mainWin)
+        {
+            mainWindow = mainWin;
+        }
+        public void Subscribe(IKeyboardMouseEvents events)
+        {
+            m_Events = events;
+
+            m_Events.MouseMove += M_Events_MouseMove;
+
+        }
+
+        public void Unsubscribe()
+        {
+            if(m_Events == null) return;
+            m_Events.MouseMove -= M_Events_MouseMove;
+            m_Events.Dispose(); 
+            m_Events = null;
+        }
+
+        private void M_Events_MouseMove(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            //ExtenalMonitorInfo.LoadData();
+            //mainWindow.dropJot_win.Left = ExtenalMonitorInfo.monitorInfo.CursorPosition.X;
+            //mainWindow.dropJot_win.Top = ExtenalMonitorInfo.monitorInfo.CursorPosition.Y;
+            //mainWindow.dropJot_win.Top = e.Y;
+            //mainWindow.x.Text = e.X.ToString();
+            //mainWindow.y.Text = e.Y.ToString();
+        }
     }
 }

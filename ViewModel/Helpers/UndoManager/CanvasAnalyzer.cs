@@ -11,17 +11,17 @@ namespace JotWin.ViewModel.Helpers.UndoManager
 {
     public class CanvasAnalyzer
     {
-        public static void reconstructCanvas(InkCanvas inkCanvas, canvasState canvasContent)
+        public static void reconstructCanvas(InkCanvas inkCanvas, CanvasState canvasContent)
         {
             inkCanvas.Children.Clear();
-            inkCanvas.Strokes.Clear();
+            //inkCanvas.Strokes.Clear();
 
             //inkCanvas.Strokes = canvasContent._strokeList;
 
-            foreach (var stroke in canvasContent._extendedStroke.Strokes)
-            {
-                inkCanvas.Strokes.Add(new Stroke(stroke.StylusPoints.Clone(), stroke.DrawingAttributes.Clone()));
-            }
+            //foreach (var stroke in canvasContent._extendedStroke.Strokes)
+            //{
+            //    inkCanvas.Strokes.Add(new Stroke(stroke.StylusPoints.Clone(), stroke.DrawingAttributes.Clone()));
+            //}
 
             foreach (ExtendedImage image in canvasContent._imageList)
             {
@@ -90,6 +90,11 @@ namespace JotWin.ViewModel.Helpers.UndoManager
                 }
             }
 
+            foreach (ExtendedUIStroke stroke in canvasContent._strokeList)
+            {
+                inkCanvas.Children.Add(stroke.ToUIStroke());
+            }
+
             foreach (ExtendedTextBox textBox in canvasContent._textList)
             {
                 TextBox newTextBox = new()
@@ -116,17 +121,17 @@ namespace JotWin.ViewModel.Helpers.UndoManager
             }
         }
 
-        public static List<Stroke> FindStrokes(InkCanvas inkCanvas)
-        {
-            List<Stroke> foundStrokes = new();
+        //public static List<Stroke> FindStrokes(InkCanvas inkCanvas)
+        //{
+        //    List<Stroke> foundStrokes = new();
 
-            foreach (Stroke originalStroke in inkCanvas.Strokes)
-            {
-                foundStrokes.Add(originalStroke);
-            }
+        //    foreach (Stroke originalStroke in inkCanvas.Strokes)
+        //    {
+        //        foundStrokes.Add(originalStroke);
+        //    }
 
-            return foundStrokes;
-        }
+        //    return foundStrokes;
+        //}
 
         public static List<ExtendedRectangle> FindRectangle(InkCanvas inkCanvas)
         {
@@ -249,6 +254,23 @@ namespace JotWin.ViewModel.Helpers.UndoManager
             }
 
             return foundImages;
+        }
+
+        public static List<ExtendedUIStroke> FindUIStrokes(InkCanvas inkCanvas)
+        {
+            List<ExtendedUIStroke> foundStrokes = new();
+
+            foreach (UIElement child in inkCanvas.Children)
+            {
+                if (child is not UIStroke stroke)
+                {
+                    continue;
+                }
+
+                foundStrokes.Add(stroke.ToExtended());
+            }
+
+            return foundStrokes;
         }
     }
 }
